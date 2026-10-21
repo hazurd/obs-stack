@@ -31,6 +31,12 @@ deploy obs "$KPS_CHART" "$KPS_CHART_VERSION" \
   --set "grafana.adminPassword=$GRAFANA_ADMIN_PASSWORD" \
   $([ -f "$VALUES_HOST" ] && echo "-f $VALUES_HOST")
 
+# Keep the password this run used, so scripts/verify.sh and the next deploy log
+# in with the same credentials. 0600 and gitignored (.state/).
+umask 077
+printf 'GRAFANA_ADMIN_PASSWORD=%s\n' "$GRAFANA_ADMIN_PASSWORD" > "$OBS_SECRETS"
+echo "ok: grafana login saved to ${OBS_SECRETS#$OBS_ROOT/}"
+
 echo "--- loki $LOKI_CHART_VERSION ---"
 deploy obs-loki "$LOKI_CHART" "$LOKI_CHART_VERSION" \
   -f "$OBS_ROOT/monitoring/values/loki.yaml"
@@ -88,9 +94,6 @@ kube wait --for=condition=Available deployments --all -n "$MON_NS" --timeout=180
 echo "--- pods ---"
 kube get pods -n "$MON_NS" -o wide
 
-echo "--- host URLs ---"
-printf 'grafana       http://localhost:%s\n' "$GRAFANA_HOST_PORT"
-printf 'prometheus    http://localhost:%s\n' "$PROM_HOST_PORT"
-printf 'alertmanager  http://localhost:%s\n' "$ALERT_HOST_PORT"
-printf 'loki          http://localhost:%s\n' "$LOKI_HOST_PORT"
+echo "--- login and host URLs ---"
+"$OBS_ROOT/scripts/login.sh"
 echo "next: scripts/exporters.sh && scripts/host-targets.sh"

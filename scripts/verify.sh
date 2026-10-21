@@ -110,7 +110,7 @@ fi
 # own dashboards have unrelated titles and would skew a text search.
 dash=0
 for uid in obs-windows-host obs-wsl-host obs-gpu obs-cluster; do
-  curl -fsS --max-time 8 -u "admin:$GRAFANA_ADMIN_PASSWORD" \
+  curl -fsS --max-time 8 -u "$GRAFANA_ADMIN_USER:$GRAFANA_ADMIN_PASSWORD" \
     "http://localhost:$GRAFANA_HOST_PORT/api/dashboards/uid/$uid" > /dev/null 2>&1 \
     && dash=$((dash + 1)) || warn "grafana dashboard '$uid' not provisioned (sidecar logs: kubectl -n $MON_NS logs deploy/obs-grafana -c grafana-sc-dashboard)"
 done
@@ -135,4 +135,5 @@ if [ "$FAIL" -gt 0 ]; then
   echo "$FAIL check(s) failed - see the lines above marked 'fail'"
   exit 1
 fi
-echo "everything checks out. Grafana: http://localhost:$GRAFANA_HOST_PORT (admin/$GRAFANA_ADMIN_PASSWORD)"
+echo "everything checks out."
+"$OBS_ROOT/scripts/login.sh"

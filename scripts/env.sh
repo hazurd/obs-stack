@@ -62,6 +62,17 @@ export LOKI_HOST_PORT="${LOKI_HOST_PORT:-31000}"
 # host exporters; it remote_writes into the in-cluster Prometheus) ----------
 export EDGE_PROM_PORT="${EDGE_PROM_PORT:-9190}"
 
+# --- Grafana login ---------------------------------------------------------
+# The admin password is never committed. scripts/deploy.sh records whatever it
+# installed into .state/secrets.env (gitignored), so re-running deploy keeps the
+# same login instead of silently resetting it to the default. Override with
+# GRAFANA_ADMIN_PASSWORD=<pw>; scripts/login.sh prints the credentials in use.
+export GRAFANA_ADMIN_USER="${GRAFANA_ADMIN_USER:-admin}"
+export OBS_SECRETS="$OBS_STATE/secrets.env"
+if [ -z "${GRAFANA_ADMIN_PASSWORD:-}" ] && [ -f "$OBS_SECRETS" ]; then
+  stored="$(grep -m1 '^GRAFANA_ADMIN_PASSWORD=' "$OBS_SECRETS" 2> /dev/null | cut -d= -f2-)"
+  if [ -n "$stored" ]; then GRAFANA_ADMIN_PASSWORD="$stored"; fi
+fi
 export GRAFANA_ADMIN_PASSWORD="${GRAFANA_ADMIN_PASSWORD:-admin}"
 
 # --- host exporters (run outside the cluster) ------------------------------
