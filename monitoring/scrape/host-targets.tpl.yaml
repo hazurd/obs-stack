@@ -1,0 +1,69 @@
+# Scrape configs for the exporters that run OUTSIDE the kind cluster:
+# windows_exporter on the Windows host, and node_exporter / gpu_exporter /
+# promtail on this WSL distro.
+#
+# scripts/host-targets.sh renders this into $OBS_STATE/host-targets.yaml by
+# substituting the @...@ placeholders with the "host:port" it proved reachable
+# from inside a cluster pod, or with the literal word "disabled" when that
+# exporter is unreachable (the whole job block is then dropped, so Prometheus
+# never shows a permanently-down target).
+#
+# The rendered list is consumed two ways, both by indentation:
+#   * nested under prometheus.prometheusSpec.additionalScrapeConfigs
+#     (indent 6) in $OBS_STATE/kps-host-values.yaml
+#   * nested under scrape_configs (indent 2) in $OBS_STATE/edge-prometheus.yaml
+#     when pods cannot reach the host exporters and the WSL-side edge
+#     Prometheus is doing the scraping instead.
+#
+# "scope: host" is what the cluster dashboard panels filter on, so host
+# exporters never show up as cluster nodes.
+#
+# Do not apply this file directly.
+
+- job_name: windows-host
+  scrape_interval: 30s
+  scrape_timeout: 15s
+  static_configs:
+    - targets: ["@WINDOWS_TARGET@"]
+      labels:
+        scope: host
+        os: windows
+
+- job_name: wsl-host
+  scrape_interval: 30s
+  scrape_timeout: 15s
+  static_configs:
+    - targets: ["@WSL_TARGET@"]
+      labels:
+        scope: host
+        os: linux
+
+- job_name: wsl-gpu
+  scrape_interval: 30s
+  scrape_timeout: 15s
+  static_configs:
+    - targets: ["@GPU_TARGET@"]
+      labels:
+        scope: host
+        os: linux
+
+- job_name: wsl-promtail
+  scrape_interval: 30s
+  scrape_timeout: 15s
+  static_configs:
+    - targets: ["@PROMTAIL_TARGET@"]
+      labels:
+        scope: host
+        os: linux
+
+# Only present when the edge Prometheus fallback runs. remote_write carries the
+# "up" metric through, so this target is scraped by the cluster Prometheus even
+# though the edge process itself lives in WSL.
+- job_name: edge-prometheus
+  scrape_interval: 30s
+  scrape_timeout: 15s
+  static_configs:
+    - targets: ["@EDGE_TARGET@"]
+      labels:
+        scope: host
+        os: linux

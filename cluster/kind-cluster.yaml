@@ -1,0 +1,35 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: obs
+nodes:
+  # Control plane carries the NodePorts that kind publishes to the container
+  # engine host, which Docker Desktop then exposes on Windows localhost.
+  - role: control-plane
+    # kubeadm starts etcd with --listen-metrics-urls=http://127.0.0.1:2381, so
+    # the metrics port is unreachable from pod network (the kube-etcd
+    # ServiceMonitor scrapes the node IP) and the kube-etcd target is always
+    # "connection refused". Binding the metrics listener to all interfaces
+    # keeps it inside the kind docker network only - no host port is mapped.
+    kubeadmConfigPatches:
+      - |
+        kind: ClusterConfiguration
+        etcd:
+          local:
+            extraArgs:
+              "listen-metrics-urls": "http://0.0.0.0:2381"
+    extraPortMappings:
+      # in-cluster NodePort -> host port (Windows localhost / WSL localhost)
+      - containerPort: 30000
+        hostPort: 3000
+        protocol: TCP
+      - containerPort: 30090
+        hostPort: 9090
+        protocol: TCP
+      - containerPort: 30903
+        hostPort: 9093
+        protocol: TCP
+      - containerPort: 31000
+        hostPort: 31000
+        protocol: TCP
+  - role: worker
+  - role: worker

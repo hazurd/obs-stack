@@ -1,0 +1,392 @@
+# Alert rules for the host exporters (Windows + WSL + GPU + promtail).
+# Applied by scripts/deploy.sh into the monitoring namespace.
+#
+# kube-prometheus-stack is configured with ruleSelectorNilUsesHelmValues: false
+# (see monitoring/values/kube-prometheus-stack.yaml), so this rule needs no
+# "release: obs" label to be picked up by the Prometheus operator.
+#
+# Every rule scopes its expression to the job names produced by
+# monitoring/scrape/host-targets.tpl.yaml, so nothing here can match cluster
+# pods. When the WSL-side edge Prometheus does the scraping instead, its
+# remote_write forwards both the "up" metric and these job labels, so the alerts
+# behave identically.
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: obs-host-alerts
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/part-of: obs-stack
+spec:
+  groups:
+    # --- exporters themselves ------------------------------------------------
+    - name: obs-host-up
+      rules:
+        - alert: WindowsExporterDown
+          expr: up{job="windows-host"} == 0
+          for: 5m
+          labels:
+            severity: critical
+            scope: host
+          annotations:
+            summary: windows_exporter on the Windows host is not scrapeable
+            description: >-
+              The Windows host exporter has been unreachable for 5m. Check that
+              "powershell.exe -File exporters/windows/windows-exporter.ps1
+              -Action start" is running, and that the inbound firewall rule for
+              port {{ $labels.port }} was added from an elevated PowerShell.
+
+        - alert: WslExporterDown
+          expr: up{job="wsl-host"} == 0
+          for: 5m
+          labels:
+            severity: critical
+            scope: host
+          annotations:
+            summary: node_exporter on the WSL distro is not scrapeable
+            description: >-
+              obs-node-exporter.service on port {{ $labels.port }} is down. Check
+              "systemctl status obs-node-exporter" and that the IP in
+              $OBS_STATE/host-targets.env still matches this distro's eth0 address
+              (WSL reassigns it on every restart).
+
+        - alert: GpuExporterDown
+          expr: up{job="wsl-gpu"} == 0
+          for: 5m
+          labels:
+            severity: warning
+            scope: host
+          annotations:
+            summary: gpu_exporter (nvidia-smi) is not scrapeable
+            description: >-
+              obs-gpu-exporter.service on port {{ $labels.port }} is down, so the
+              GPU panels have no data. nvidia-smi lives in /usr/lib/wsl/lib and
+              needs the GPU to be attached to this WSL distro.
+
+        - alert: PromtailHostDown
+          expr: up{job="wsl-promtail"} == 0
+          for: 5m
+          labels:
+            severity: warning
+            scope: host
+          annotations:
+            summary: WSL-side promtail is not scrapeable
+            description: >-
+              obs-promtail-host.service on port {{ $labels.port }} is down, so WSL
+              distro logs are not reaching Loki.
+
+        # Only ever fires in the edge-Prometheus fallback mode: the job does not
+        # exist otherwise, so the expression has no series to alert on.
+        - alert: EdgePrometheusDown
+          expr: up{job="edge-prometheus"} == 0
+          for: 5m
+          labels:
+            severity: critical
+            scope: host
+          annotations:
+            summary: WSL-side edge Prometheus is down (host metrics stopped)
+            description: >-
+              obs-edge-prometheus.service feeds host metrics into the cluster
+              Prometheus via remote_write. While it is down the Windows and WSL
+              dashboards go blank.
+
+    # --- Windows host -------------------------------------------------------
+    - name: obs-windows-host
+      rules:
+        - alert: WindowsHighCpu
+          expr: >-
+            100 * sum(rate(windows_cpu_time_total{job="windows-host",mode!~"idle|park_status"}[5m]))
+            / sum(rate(windows_cpu_time_total{job="windows-host"}[5m])) > 85
+          for: 10m
+          labels:
+            severity: warning
+            scope: host
+          annotations:
+            summary: Windows host CPU above 85%
+            description: >-
+              Weighted CPU usage across all cores has been {{ $value | printf "%.1f" }}%
+              for 10m. The Windows dashboard's per-process table names the culprit.
+
+        - alert: WindowsMemoryLow
+          expr: >-
+            windows_memory_available_bytes{job="windows-host"}
+            / windows_memory_physical_total_bytes{job="windows-host"} < 0.10
+          for: 10m
+          labels:
+            severity: warning
+            scope: host
+          annotations:
+            summary: Windows host has under 10% physical memory available
+            description: >-
+              {{ $value | printf "%.1f" }} of physical RAM is available. Commit
+              pressure is on the Windows dashboard's memory panel.
+
+        - alert: WindowsCommitPressure
+          expr: >-
+            windows_memory_committed_bytes{job="windows-host"}
+            / windows_memory_commit_limit{job="windows-host"} > 0.90
+          for: 10m
+          labels:
+            severity: warning
+            scope: host
+          annotations:
+            summary: Windows commit charge above 90% of the limit
+            description: >-
+              Commit charge is {{ $value | printf "%.1f" }} of the commit limit;
+              the pagefile is about to become the bottleneck.
+
+        - alert: WindowsPagefilePressure
+          expr: >-
+            (windows_pagefile_limit_bytes{job="windows-host"} - windows_pagefile_free_bytes{job="windows-host"})
+            / windows_pagefile_limit_bytes{job="windows-host"} > 0.75
+          for: 10m
+          labels:
+            severity: warning
+            scope: host
+          annotations:
+            summary: Windows pagefile more than 75% used
+            description: >-
+              {{ $value | printf "%.1f" }} of the pagefile limit is in use.
+
+        - alert: WindowsDiskSpaceLow
+          expr: >-
+            windows_logical_disk_free_bytes{job="windows-host"}
+            / windows_logical_disk_size_bytes{job="windows-host"} < 0.10
+            and windows_logical_disk_size_bytes{job="windows-host"} > 1e9
+          for: 10m
+          labels:
+            severity: warning
+            scope: host
+          annotations:
+            summary: Windows volume {{ $labels.volume }} under 10% free
+            description: >-
+              Volume {{ $labels.volume }} has {{ $value | printf "%.2f" }} of its
+              size free. Small volumes (under 1 GiB) are excluded on purpose.
+
+        - alert: WindowsDiskBusy
+          expr: >-
+            rate(windows_logical_disk_read_seconds_total{job="windows-host"}[5m])
+            + rate(windows_logical_disk_write_seconds_total{job="windows-host"}[5m]) > 0.8
+          for: 10m
+          labels:
+            severity: warning
+            scope: host
+          annotations:
+            summary: Windows volume {{ $labels.volume }} busy for most of every second
+            description: >-
+              Read and write time on {{ $labels.volume }} sums to
+              {{ $value | printf "%.2f" }} seconds per second.
+
+        - alert: WindowsClockDrift
+          expr: abs(windows_time_computed_time_offset_seconds{job="windows-host"}) > 1
+          for: 10m
+          labels:
+            severity: warning
+            scope: host
+          annotations:
+            summary: Windows clock is {{ $value | printf "%.1f" }}s off NTP
+            description: >-
+              Time offset from the configured NTP source exceeds 1s, which makes
+              log timestamps and certificate validation unreliable.
+
+        - alert: WindowsNetworkErrors
+          expr: >-
+            increase(windows_net_packets_received_errors_total{job="windows-host"}[10m])
+            + increase(windows_net_packets_outbound_errors_total{job="windows-host"}[10m]) > 0
+          for: 10m
+          labels:
+            severity: warning
+            scope: host
+          annotations:
+            summary: Windows NIC {{ $labels.nic }} reporting packet errors
+            description: >-
+              {{ $value }} inbound/outbound packet errors on {{ $labels.nic }} in
+              the last 10m.
+
+    # --- WSL distro ---------------------------------------------------------
+    - name: obs-wsl-host
+      rules:
+        - alert: WslHighCpu
+          expr: >-
+            100 * (1 - avg(rate(node_cpu_seconds_total{job="wsl-host",mode="idle"}[5m]))) > 85
+          for: 10m
+          labels:
+            severity: warning
+            scope: host
+          annotations:
+            summary: WSL distro CPU above 85%
+            description: >-
+              Average non-idle CPU across all cores has been
+              {{ $value | printf "%.1f" }}% for 10m.
+
+        - alert: WslLoadHigh
+          expr: node_load1{job="wsl-host"} > 4
+          for: 10m
+          labels:
+            severity: warning
+            scope: host
+          annotations:
+            summary: WSL distro 1-minute load above 4
+            description: >-
+              Load {{ $value }}. Note that WSL shares the Windows CPU with the host,
+              so load here is contention, not a separate machine being busy.
+
+        - alert: WslMemoryHigh
+          expr: >-
+            (node_memory_MemTotal_bytes{job="wsl-host"} - node_memory_MemAvailable_bytes{job="wsl-host"})
+            / node_memory_MemTotal_bytes{job="wsl-host"} > 0.90
+          for: 10m
+          labels:
+            severity: warning
+            scope: host
+          annotations:
+            summary: WSL distro memory above 90% used
+            description: >-
+              {{ $value | printf "%.1f" }} of WSL memory is in use. The WSL
+              dashboard shows buffers/cache separately from application memory.
+
+        # WSL may report SwapTotal_bytes = 0, so this measures bytes used instead
+        # of a percentage, which would divide by zero.
+        - alert: WslSwapInUse
+          expr: >-
+            node_memory_SwapTotal_bytes{job="wsl-host"} - node_memory_SwapFree_bytes{job="wsl-host"} > 536870912
+          for: 10m
+          labels:
+            severity: warning
+            scope: host
+          annotations:
+            summary: WSL distro using more than 512 MiB of swap
+            description: >-
+              {{ $value | printf "%.0f" }} bytes of swap are in use.
+
+        - alert: WslDiskSpaceLow
+          expr: >-
+            node_filesystem_avail_bytes{job="wsl-host",fstype!~"tmpfs|overlay"}
+            / node_filesystem_size_bytes{job="wsl-host",fstype!~"tmpfs|overlay"} < 0.10
+          for: 10m
+          labels:
+            severity: warning
+            scope: host
+          annotations:
+            summary: WSL filesystem {{ $labels.mountpoint }} under 10% free
+            description: >-
+              {{ $value | printf "%.2f" }} free on {{ $labels.mountpoint }}.
+
+        - alert: WslDiskBusy
+          expr: rate(node_disk_io_time_seconds_total{job="wsl-host"}[5m]) > 0.8
+          for: 10m
+          labels:
+            severity: warning
+            scope: host
+          annotations:
+            summary: WSL disk {{ $labels.device }} busy for most of every second
+            description: >-
+              I/O time on {{ $labels.device }} is {{ $value | printf "%.2f" }}
+              seconds per second. WSL disk I/O is mediated by Windows, so this is
+              usually host-side pressure.
+
+        - alert: WslSystemdUnitsFailed
+          expr: node_systemd_unit_state{job="wsl-host",state="failed"} == 1
+          for: 5m
+          labels:
+            severity: warning
+            scope: host
+          annotations:
+            summary: systemd unit {{ $labels.name }} failed in WSL
+            description: >-
+              {{ $labels.name }} is in the failed state. Note that Prometheus
+              overrides the job label, so this matches even though node_exporter
+              emits job="systemd" internally.
+
+        - alert: WslFileDescriptorsHigh
+          expr: >-
+            node_filefd_allocated{job="wsl-host"} / node_filefd_maximum{job="wsl-host"} > 0.80
+          for: 10m
+          labels:
+            severity: warning
+            scope: host
+          annotations:
+            summary: WSL distro using {{ $value | printf "%.1f" }} of its file descriptor limit
+            description: >-
+              Allocated file descriptors are above 80% of the maximum.
+
+    # --- GPU ---------------------------------------------------------------
+    - name: obs-wsl-gpu
+      rules:
+        - alert: GpuHighUtilization
+          expr: gpu_utilization_percent{job="wsl-gpu"} > 90
+          for: 10m
+          labels:
+            severity: warning
+            scope: host
+          annotations:
+            summary: GPU {{ $labels.gpu }} above 90% utilization
+            description: >-
+              {{ $value | printf "%.0f" }}% GPU utilization on {{ $labels.name }}
+              for 10m.
+
+        - alert: GpuMemoryHigh
+          expr: >-
+            gpu_memory_used_bytes{job="wsl-gpu"} / gpu_memory_total_bytes{job="wsl-gpu"} > 0.90
+          for: 10m
+          labels:
+            severity: warning
+            scope: host
+          annotations:
+            summary: GPU {{ $labels.gpu }} using {{ $value | printf "%.1f" }} of its memory
+            description: >-
+              VRAM usage on {{ $labels.name }} above 90%.
+
+        - alert: GpuTemperatureHigh
+          expr: gpu_temperature_celsius{job="wsl-gpu"} > 85
+          for: 5m
+          labels:
+            severity: critical
+            scope: host
+          annotations:
+            summary: GPU {{ $labels.gpu }} at {{ $value | printf "%.0f" }}C
+            description: >-
+              Temperature above 85C on {{ $labels.name }}. Check cooling; the GPU
+              throttles above its limit.
+
+        # The exporter polls nvidia-smi; a query failure means the panels stop
+        # updating even though the exporter itself is still "up".
+        - alert: GpuSmiQueryFailures
+          expr: increase(gpu_smi_query_errors_total{job="wsl-gpu"}[10m]) > 0
+          for: 5m
+          labels:
+            severity: warning
+            scope: host
+          annotations:
+            summary: gpu_exporter nvidia-smi queries failing
+            description: >-
+              {{ $value }} failed nvidia-smi queries in the last 10m. WSL can drop
+              the GPU attachment after a Windows reboot.
+
+    # --- log shipping ------------------------------------------------------
+    - name: obs-log-shipping
+      rules:
+        - alert: PromtailHostNoTargets
+          expr: promtail_files_active_total{job="wsl-promtail"} == 0
+          for: 10m
+          labels:
+            severity: warning
+            scope: host
+          annotations:
+            summary: WSL-side promtail has no log files to tail
+            description: >-
+              promtail reports 0 active files, so nothing is being shipped to Loki.
+              Check {{ $labels.instance }} against $OBS_STATE/promtail-host.yaml and
+              the journal-follow.py output file.
+
+        - alert: PromtailHostConfigReloadFailed
+          expr: increase(promtail_config_reload_fail_total{job="wsl-promtail"}[10m]) > 0
+          for: 5m
+          labels:
+            severity: warning
+            scope: host
+          annotations:
+            summary: WSL-side promtail rejected a config reload
+            description: >-
+              promtail failed to reload its config {{ $value }} times. The running
+              config is stale, so new scrape configs are not in effect.

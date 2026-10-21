@@ -1,0 +1,8 @@
+# Everything generated at run time stays out of the repo.
+.bin/
+.state/
+.kube/
+
+# Local scratch / samples.
+metrics.txt
+*.log

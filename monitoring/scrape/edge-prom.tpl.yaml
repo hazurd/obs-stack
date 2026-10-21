@@ -1,0 +1,29 @@
+# Config for the WSL-side "edge" Prometheus, the fallback used when cluster
+# pods cannot reach the host exporters (WSL2 NAT + Windows Firewall make that a
+# real possibility). It scrapes the same @...@ targets as
+# monitoring/scrape/host-targets.tpl.yaml and remote_writes the results into the
+# in-cluster Prometheus, which is what Grafana reads.
+#
+# scripts/edge-prometheus.sh renders this into $OBS_STATE/edge-prometheus.yaml:
+# it substitutes @REMOTE_WRITE_URL@ and appends $OBS_STATE/edge-targets.yaml
+# (the WSL-side view of the same job list) indented by 2 under the
+# scrape_configs: key below.
+#
+# Do not apply this file directly.
+
+global:
+  scrape_interval: 30s
+  scrape_timeout: 15s
+  # "scope: host" travels through remote_write, so host series keep the label
+  # the cluster dashboards filter on.
+  external_labels:
+    scope: host
+    src: wsl-edge
+
+# Retention here is short on purpose: the edge process is a pipe, not a store.
+# It only needs enough history to survive a restart of the cluster Prometheus.
+
+remote_write:
+  - url: "@REMOTE_WRITE_URL@"
+
+scrape_configs:

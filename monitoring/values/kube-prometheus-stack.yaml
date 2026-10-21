@@ -1,0 +1,84 @@
+# Values for kube-prometheus-stack 92.11.0 (release name "obs").
+#
+# scripts/deploy.sh passes this file plus .state/kps-host-values.yaml, which
+# scripts/host-targets.sh generates from monitoring/scrape/host-targets.tpl.yaml
+# (the scrape configs for exporters that run outside the cluster).
+
+grafana:
+  # Grafana is reachable from a Windows browser at http://localhost:3000.
+  # Login admin/<GRAFANA_ADMIN_PASSWORD> (default "admin", see scripts/env.sh).
+  adminPassword: admin
+
+  # kind maps NodePort -> host port (cluster/kind-cluster.yaml). The grafana
+  # subchart has no nodePort value, so scripts/deploy.sh patches the service.
+  service:
+    type: NodePort
+    portName: http-web
+    port: 80
+    targetPort: 3000
+
+  sidecar:
+    dashboards:
+      enabled: true
+      # monitoring/dashboards/*.json are applied into the monitoring namespace,
+      # so the sidecar has to watch more than the release namespace.
+      searchNamespace: ALL
+      label: grafana_dashboard
+      labelValue: "1"
+    datasources:
+      enabled: true
+      searchNamespace: ALL
+
+  # Loki datasource for the log panels. uid must match ${DS_LOKI} in the
+  # dashboard JSON. The Loki release is named "obs-loki" (see
+  # monitoring/values/loki.yaml).
+  extraDatasources:
+    loki:
+      name: Loki
+      type: loki
+      uid: loki
+      access: proxy
+      url: http://obs-loki:3100
+      isDefault: false
+
+prometheus:
+  # The Service is created by the chart (prometheus.service), not by the
+  # Prometheus CR - prometheusSpec has no service field. kind maps NodePorts to
+  # host ports, see cluster/kind-cluster.yaml and scripts/deploy.sh.
+  service:
+    type: NodePort
+  prometheusSpec:
+    retention: 7d
+    # Pick up monitoring/rules/host-alerts.yaml (and any other rule the user
+    # adds) instead of only rules this chart created.
+    ruleSelectorNilUsesHelmValues: false
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+
+alertmanager:
+  # Chart-created Service (alertmanager.service), NodePort 30903 -> host 9093.
+  service:
+    type: NodePort
+  alertmanagerSpec:
+    # alertmanager.config holds the Alertmanager *routing* file, which has no
+    # ruleSelectorNilUsesHelmValues field - putting it there makes the operator
+    # reject the Alertmanager CR and no StatefulSet is ever created. Prometheus
+    # picks up monitoring/rules/host-alerts.yaml through prometheusSpec's
+    # ruleSelectorNilUsesHelmValues above; Alertmanager only merges
+    # AlertmanagerConfig resources, and these selectors accept all of them.
+    alertmanagerConfigSelector: {}
+    alertmanagerConfigNamespaceSelector: {}
+
+# kind runs control-plane components inside the control-plane node on
+# 127.0.0.1, so their metrics are not reachable from a ServiceMonitor. kubelet
+# (and therefore cAdvisor) and etcd are reachable, so those stay enabled.
+kubeControllerManager:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeProxy:
+  enabled: false
+kubeEtcd:
+  enabled: true
+kubelet:
+  enabled: true

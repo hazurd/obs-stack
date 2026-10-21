@@ -1,0 +1,16 @@
+[Unit]
+Description=obs-stack promtail (ships WSL distro logs to Loki)
+After=network.target @JOURNAL_UNIT@.service
+Wants=@JOURNAL_UNIT@.service
+
+[Service]
+Type=simple
+ExecStart=@OBS_BIN@/promtail -config.file @OBS_STATE@/promtail-host.yaml
+Restart=always
+RestartSec=5
+# promtail 3.5.1 does not exit on SIGTERM while a Loki push is failing, so
+# systemd has to escalate to SIGKILL or "systemctl stop" hangs.
+TimeoutStopSec=10
+
+[Install]
+WantedBy=multi-user.target

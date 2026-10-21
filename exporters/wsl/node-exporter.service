@@ -1,0 +1,12 @@
+[Unit]
+Description=obs-stack node_exporter (WSL distro host metrics)
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=@OBS_BIN@/node_exporter --collector.systemd --collector.tcpstat --web.listen-address=0.0.0.0:@NODE_EXPORTER_PORT@
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

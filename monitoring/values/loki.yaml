@@ -1,0 +1,81 @@
+# Values for grafana/loki 7.3.0 (release name "obs-loki").
+#
+# Single binary + filesystem storage: a monitoring stack inside a kind cluster
+# on a laptop does not need a distributed Loki, and the chart refuses to start
+# a single binary without a schema, hence useTestSchema.
+
+deploymentMode: SingleBinary
+
+singleBinary:
+  replicas: 1
+  # kind ships the local-path provisioner, so this PVC binds without extra setup.
+  persistence:
+    enabled: true
+    size: 3Gi
+  resources:
+    requests:
+      cpu: 50m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+  service:
+    # NodePort 31000 -> host port 31000 (cluster/kind-cluster.yaml); the chart
+    # has no nodePort value, so scripts/deploy.sh patches the service.
+    type: NodePort
+
+# The other three roles are meaningless in SingleBinary mode.
+write:
+  replicas: 0
+read:
+  replicas: 0
+backend:
+  replicas: 0
+
+# Memcached caches and the canary are pointless at this scale and just add
+# pods that never become ready on a 3-node cluster.
+chunksCache:
+  enabled: false
+resultsCache:
+  enabled: false
+# The chart key is lokiCanary, not canary; a stray `canary:` block is ignored
+# and the canary daemonset keeps running on every node.
+lokiCanary:
+  enabled: false
+# The chart's helm test hooks assert the canary exists, so they fail once the
+# canary is off (validate.yaml). scripts/verify.sh queries Loki directly.
+test:
+  enabled: false
+gateway:
+  enabled: false
+
+monitoring:
+  # Off by default. Without it kube-prometheus-stack never scrapes Loki, so the
+  # "Loki up" panel on the cluster dashboard would be empty. This also installs
+  # the chart's own Loki alert rules.
+  serviceMonitor:
+    enabled: true
+
+loki:
+  # The chart defaults to auth_enabled: true (multi-tenancy), which makes every
+  # read and write without an X-Scope-OrgID header fail with 401 "no org id" -
+  # that breaks the Grafana datasource and both promtail shippers. There is one
+  # tenant here, so tenant auth is off.
+  auth_enabled: false
+  # No object storage.
+  storage:
+    type: filesystem
+  # Required for single-binary mode when no Cassandra/Table store is configured.
+  useTestSchema: true
+  commonConfig:
+    replication_factor: 1
+  limits:
+    ingestion_rate_mb: 8
+    ingestion_burst_size_mb: 16
+    max_global_size_limit_bytes: 8388608
+
+# Old streams are pruned by the compactor (part of the single binary's
+# targetModule "all"). Without this a filesystem-backed Loki keeps data forever.
+tableManager:
+  retention_deletes_enabled: true
+  retention_period: 168h

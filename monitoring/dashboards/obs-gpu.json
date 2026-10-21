@@ -1,0 +1,1187 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "graphTooltip": 1,
+  "id": null,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "panels": [],
+      "title": "Health",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 1
+      },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "up{job=\"wsl-gpu\"}",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "scrape up",
+      "transforms": [],
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 4,
+        "y": 1
+      },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "gpu_exporter_up{job=\"wsl-gpu\"}",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "exporter up",
+      "transforms": [],
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "showThresholdLabels": false,
+            "thresholdsMode": "absolute"
+          },
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 1
+      },
+      "id": 3,
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "gpu_utilization_percent{job=\"wsl-gpu\"}",
+          "instant": true,
+          "legendFormat": "{{gpu}}",
+          "refId": "A"
+        }
+      ],
+      "title": "GPU utilisation",
+      "transforms": [],
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "showThresholdLabels": false,
+            "thresholdsMode": "absolute"
+          },
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 1
+      },
+      "id": 4,
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "gpu_memory_utilization_percent{job=\"wsl-gpu\"}",
+          "instant": true,
+          "legendFormat": "{{gpu}}",
+          "refId": "A"
+        }
+      ],
+      "title": "VRAM in use",
+      "transforms": [],
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 60
+              },
+              {
+                "color": "red",
+                "value": 85
+              }
+            ]
+          },
+          "unit": "celsius"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 1
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "gpu_temperature_celsius{job=\"wsl-gpu\"}",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Temperature",
+      "transforms": [],
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 120
+              },
+              {
+                "color": "red",
+                "value": 220
+              }
+            ]
+          },
+          "unit": "watts"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 1
+      },
+      "id": 6,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "gpu_power_draw_watts{job=\"wsl-gpu\"}",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Power draw",
+      "transforms": [],
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "panels": [],
+      "title": "Memory",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "showThresholdLabels": false,
+            "thresholdsMode": "absolute"
+          },
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 6
+      },
+      "id": 7,
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "gpu_memory_total_bytes{job=\"wsl-gpu\"}",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "VRAM total",
+      "transforms": [],
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "showThresholdLabels": false,
+            "thresholdsMode": "absolute"
+          },
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 6
+      },
+      "id": 8,
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "gpu_memory_used_bytes{job=\"wsl-gpu\"}",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "VRAM used",
+      "transforms": [],
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "showThresholdLabels": false,
+            "thresholdsMode": "absolute"
+          },
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 6
+      },
+      "id": 9,
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "gpu_memory_free_bytes{job=\"wsl-gpu\"}",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "VRAM free",
+      "transforms": [],
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "showThresholdLabels": false,
+            "thresholdsMode": "absolute"
+          },
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 6
+      },
+      "id": 10,
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "1048576 * sum(gpu_compute_process_memory_mib{job=\"wsl-gpu\"})",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Held by processes",
+      "transforms": [],
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 10
+      },
+      "id": 11,
+      "options": {},
+      "targets": [
+        {
+          "expr": "gpu_memory_used_bytes{job=\"wsl-gpu\"}",
+          "legendFormat": "{{gpu}}",
+          "refId": "A"
+        },
+        {
+          "expr": "gpu_memory_total_bytes{job=\"wsl-gpu\"}",
+          "legendFormat": "{{gpu}} total",
+          "refId": "A"
+        }
+      ],
+      "title": "VRAM used over time",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 10
+      },
+      "id": 12,
+      "options": {},
+      "targets": [
+        {
+          "expr": "gpu_utilization_percent{job=\"wsl-gpu\"}",
+          "legendFormat": "{{gpu}} core",
+          "refId": "A"
+        },
+        {
+          "expr": "gpu_memory_utilization_percent{job=\"wsl-gpu\"}",
+          "legendFormat": "{{gpu}} memory",
+          "refId": "A"
+        }
+      ],
+      "title": "Utilisation",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 18
+      },
+      "panels": [],
+      "title": "Thermals and processes",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 60
+              },
+              {
+                "color": "red",
+                "value": 85
+              }
+            ]
+          },
+          "unit": "celsius"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 19
+      },
+      "id": 13,
+      "options": {},
+      "targets": [
+        {
+          "expr": "gpu_temperature_celsius{job=\"wsl-gpu\"}",
+          "legendFormat": "{{gpu}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Temperature",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 120
+              },
+              {
+                "color": "red",
+                "value": 220
+              }
+            ]
+          },
+          "unit": "watts"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 8,
+        "y": 19
+      },
+      "id": 14,
+      "options": {},
+      "targets": [
+        {
+          "expr": "gpu_power_draw_watts{job=\"wsl-gpu\"}",
+          "legendFormat": "{{gpu}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Power draw",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 19
+      },
+      "id": 15,
+      "options": {},
+      "targets": [
+        {
+          "expr": "gpu_compute_processes{job=\"wsl-gpu\"}",
+          "legendFormat": "{{gpu}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Compute processes",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "mbytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 27
+      },
+      "id": 16,
+      "options": {},
+      "targets": [
+        {
+          "expr": "gpu_compute_process_memory_mib{job=\"wsl-gpu\"}",
+          "legendFormat": "{{gpu}} pid {{pid}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Memory held per process",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 27
+      },
+      "id": 17,
+      "options": {
+        "showLegend": false
+      },
+      "targets": [
+        {
+          "expr": "gpu_info{job=\"wsl-gpu\"}",
+          "format": "table",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "GPU inventory",
+      "transforms": [],
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 35
+      },
+      "panels": [],
+      "title": "Exporter internals",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 36
+      },
+      "id": 18,
+      "options": {},
+      "targets": [
+        {
+          "expr": "rate(gpu_smi_query_errors_total{job=\"wsl-gpu\"}[5m])",
+          "legendFormat": "errors/s",
+          "refId": "A"
+        },
+        {
+          "expr": "gpu_smi_query_errors_total{job=\"wsl-gpu\"}",
+          "legendFormat": "errors total",
+          "refId": "A"
+        }
+      ],
+      "title": "nvidia-smi failures",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 10
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 36
+      },
+      "id": 19,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "gpu_smi_query_errors_total{job=\"wsl-gpu\"}",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Query errors",
+      "transforms": [],
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "name": "${DS_LOKI}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 36
+      },
+      "id": 20,
+      "options": {
+        "showTimeRange": false
+      },
+      "targets": [
+        {
+          "expr": "{job=\"wsl-journald\"} |= \"gpu_exporter\"",
+          "refId": "A"
+        }
+      ],
+      "title": "Exporter log (journald)",
+      "transforms": [],
+      "type": "logs"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 44
+      },
+      "id": 21,
+      "options": {
+        "content": "GPU metrics come from `exporters/gpu/gpu_exporter.py` running on WSL against `/usr/lib/wsl/lib/nvidia-smi`, so they describe the Windows GPU through WSL's passthrough. `windows_exporter`'s own `gpu` collector reports nothing on WSL2 hosts, which is why this exporter exists.",
+        "mode": "markdown"
+      },
+      "targets": [],
+      "title": "Note",
+      "transforms": [],
+      "type": "text"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": [
+    "obs-stack",
+    "host",
+    "gpu"
+  ],
+  "templating": {
+    "list": [
+      {
+        "hide": 0,
+        "label": "Prometheus",
+        "name": "DS_PROMETHEUS",
+        "query": "prometheus",
+        "type": "datasource"
+      },
+      {
+        "hide": 0,
+        "label": "Loki",
+        "name": "DS_LOKI",
+        "query": "loki",
+        "type": "datasource"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-3h",
+    "to": "now"
+  },
+  "title": "GPU (RTX via nvidia-smi)",
+  "uid": "obs-gpu"
+}

@@ -1,0 +1,1803 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "graphTooltip": 1,
+  "id": null,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "panels": [],
+      "title": "Health",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 1
+      },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "up{job=\"windows-host\"}",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "windows_exporter up",
+      "transforms": [],
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "showThresholdLabels": false,
+            "thresholdsMode": "absolute"
+          },
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 4,
+        "y": 1
+      },
+      "id": 2,
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "100 * sum(rate(windows_cpu_time_total{mode!=\"idle\"}[5m])) / sum(rate(windows_cpu_time_total[5m]))",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "CPU utilisation",
+      "transforms": [],
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "showThresholdLabels": false,
+            "thresholdsMode": "absolute"
+          },
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 9,
+        "y": 1
+      },
+      "id": 3,
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "100 * (windows_memory_physical_total_bytes - windows_memory_available_bytes) / windows_memory_physical_total_bytes",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Memory in use",
+      "transforms": [],
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "showThresholdLabels": false,
+            "thresholdsMode": "absolute"
+          },
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 14,
+        "y": 1
+      },
+      "id": 4,
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "100 * windows_memory_committed_bytes / windows_memory_commit_limit",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Commit charge",
+      "transforms": [],
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 30
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 19,
+        "y": 1
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "abs(windows_time_computed_time_offset_seconds)",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Clock drift",
+      "transforms": [],
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "panels": [],
+      "title": "CPU",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 6
+      },
+      "id": 6,
+      "options": {},
+      "targets": [
+        {
+          "expr": "rate(windows_cpu_time_total[5m])",
+          "legendFormat": "{{mode}}",
+          "refId": "A"
+        }
+      ],
+      "title": "CPU time by mode",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 6
+      },
+      "id": 7,
+      "options": {},
+      "targets": [
+        {
+          "expr": "100 * (1 - rate(windows_cpu_time_total{mode=\"idle\"}[5m]) / rate(windows_cpu_time_total[5m]))",
+          "legendFormat": "{{core}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Busy per core",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 14
+      },
+      "id": 8,
+      "options": {},
+      "targets": [
+        {
+          "expr": "rate(windows_cpu_interrupts_total{job=\"windows-host\"}[5m])",
+          "legendFormat": "{{core}} interrupts",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(windows_cpu_dpcs_total{job=\"windows-host\"}[5m])",
+          "legendFormat": "{{core}} dpc",
+          "refId": "A"
+        }
+      ],
+      "title": "Interrupts and DPCs",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 14
+      },
+      "id": 9,
+      "options": {},
+      "targets": [
+        {
+          "expr": "windows_system_processor_queue_length",
+          "legendFormat": "queue",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(windows_system_system_calls_total[5m])",
+          "legendFormat": "syscalls/s",
+          "refId": "A"
+        }
+      ],
+      "title": "Processor queue length",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      },
+      "panels": [],
+      "title": "Memory",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "showThresholdLabels": false,
+            "thresholdsMode": "absolute"
+          },
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 23
+      },
+      "id": 10,
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "windows_memory_physical_total_bytes - windows_memory_available_bytes",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Physical in use",
+      "transforms": [],
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "showThresholdLabels": false,
+            "thresholdsMode": "absolute"
+          },
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 23
+      },
+      "id": 11,
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "windows_memory_available_bytes",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Physical available",
+      "transforms": [],
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "showThresholdLabels": false,
+            "thresholdsMode": "absolute"
+          },
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 23
+      },
+      "id": 12,
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "windows_memory_committed_bytes",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Committed",
+      "transforms": [],
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1000000000
+              },
+              {
+                "color": "red",
+                "value": 300000000
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 23
+      },
+      "id": 13,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum(windows_pagefile_free_bytes)",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Pagefile free",
+      "transforms": [],
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 27
+      },
+      "id": 14,
+      "options": {},
+      "targets": [
+        {
+          "expr": "rate(windows_memory_page_faults_total[5m])",
+          "legendFormat": "hard faults/s",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(windows_memory_transition_faults_total[5m])",
+          "legendFormat": "transition faults/s",
+          "refId": "A"
+        }
+      ],
+      "title": "Page faults",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 27
+      },
+      "id": 15,
+      "options": {},
+      "targets": [
+        {
+          "expr": "rate(windows_memory_swap_page_reads_total[5m])",
+          "legendFormat": "reads/s",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(windows_memory_swap_page_writes_total[5m])",
+          "legendFormat": "writes/s",
+          "refId": "A"
+        }
+      ],
+      "title": "Swap page traffic",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 35
+      },
+      "panels": [],
+      "title": "Disk",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 20
+              },
+              {
+                "color": "green",
+                "value": 50
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 36
+      },
+      "id": 16,
+      "options": {},
+      "targets": [
+        {
+          "expr": "100 * windows_logical_disk_free_bytes / windows_logical_disk_size_bytes",
+          "legendFormat": "{{volume}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Logical volume free",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "Bps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 36
+      },
+      "id": 17,
+      "options": {},
+      "targets": [
+        {
+          "expr": "rate(windows_logical_disk_read_bytes_total[5m])",
+          "legendFormat": "{{volume}} read",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(windows_logical_disk_write_bytes_total[5m])",
+          "legendFormat": "{{volume}} write",
+          "refId": "A"
+        }
+      ],
+      "title": "Logical throughput",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 44
+      },
+      "id": 18,
+      "options": {},
+      "targets": [
+        {
+          "expr": "100 * rate(windows_physical_disk_read_seconds_total[5m])",
+          "legendFormat": "{{disk}} read",
+          "refId": "A"
+        },
+        {
+          "expr": "100 * rate(windows_physical_disk_write_seconds_total[5m])",
+          "legendFormat": "{{disk}} write",
+          "refId": "A"
+        }
+      ],
+      "title": "Physical disk busy",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 44
+      },
+      "id": 19,
+      "options": {},
+      "targets": [
+        {
+          "expr": "rate(windows_physical_disk_reads_total[5m])",
+          "legendFormat": "{{disk}} reads",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(windows_physical_disk_writes_total[5m])",
+          "legendFormat": "{{disk}} writes",
+          "refId": "A"
+        }
+      ],
+      "title": "Physical disk IO/s",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 52
+      },
+      "panels": [],
+      "title": "Network and TCP",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "Bps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 53
+      },
+      "id": 20,
+      "options": {},
+      "targets": [
+        {
+          "expr": "rate(windows_net_bytes_received_total[5m])",
+          "legendFormat": "{{nic}} rx",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(windows_net_bytes_sent_total[5m])",
+          "legendFormat": "{{nic}} tx",
+          "refId": "A"
+        }
+      ],
+      "title": "Throughput",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 53
+      },
+      "id": 21,
+      "options": {},
+      "targets": [
+        {
+          "expr": "rate(windows_net_packets_received_errors_total[5m])",
+          "legendFormat": "{{nic}} rx errors",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(windows_net_packets_outbound_errors_total[5m])",
+          "legendFormat": "{{nic}} tx errors",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(windows_net_output_queue_length_packets[5m])",
+          "legendFormat": "{{nic}} queue",
+          "refId": "A"
+        }
+      ],
+      "title": "Errors and drops",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 61
+      },
+      "id": 22,
+      "options": {},
+      "targets": [
+        {
+          "expr": "windows_tcp_connections_state_count",
+          "legendFormat": "{{af}} {{state}}",
+          "refId": "A"
+        }
+      ],
+      "title": "TCP connections",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 61
+      },
+      "id": 23,
+      "options": {},
+      "targets": [
+        {
+          "expr": "rate(windows_tcp_segments_retransmitted_total[5m])",
+          "legendFormat": "retransmits/s",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(windows_tcp_connection_failures_total[5m])",
+          "legendFormat": "failed connects/s",
+          "refId": "A"
+        }
+      ],
+      "title": "TCP retransmits",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 69
+      },
+      "panels": [],
+      "title": "Processes and services",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 70
+      },
+      "id": 24,
+      "options": {
+        "showLegend": false
+      },
+      "targets": [
+        {
+          "expr": "topk(10, sum by (process) (rate(windows_process_cpu_time_total{mode!=\"idle\"}[5m]))) * 100",
+          "format": "table",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Top processes by CPU",
+      "transforms": [],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 70
+      },
+      "id": 25,
+      "options": {
+        "showLegend": false
+      },
+      "targets": [
+        {
+          "expr": "topk(10, windows_process_working_set_bytes)",
+          "format": "table",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Top processes by working set",
+      "transforms": [],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 78
+      },
+      "id": 26,
+      "options": {
+        "showLegend": false
+      },
+      "targets": [
+        {
+          "expr": "windows_service_state{state!=\"running\"} == 1",
+          "format": "table",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Services not running",
+      "transforms": [],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 400
+              },
+              {
+                "color": "red",
+                "value": 700
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 78
+      },
+      "id": 27,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "windows_system_processes",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Processes",
+      "transforms": [],
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 2000
+              },
+              {
+                "color": "red",
+                "value": 4000
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 78
+      },
+      "id": 28,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "windows_system_threads",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Threads",
+      "transforms": [],
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 86
+      },
+      "panels": [],
+      "title": "Exporter internals",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 3
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 87
+      },
+      "id": 29,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "count(windows_exporter_collector_success{job=\"windows-host\"}) - sum(windows_exporter_collector_success{job=\"windows-host\"})",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Collectors failing",
+      "transforms": [],
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 87
+      },
+      "id": 30,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "count(windows_exporter_collector_success{job=\"windows-host\"})",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Collectors total",
+      "transforms": [],
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 87
+      },
+      "id": 31,
+      "options": {},
+      "targets": [
+        {
+          "expr": "rate(promhttp_metric_handler_requests_total{job=\"windows-host\"}[5m])",
+          "legendFormat": "{{code}} req/s",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(windows_exporter_scrape_duration_seconds_sum{job=\"windows-host\"}[5m])",
+          "legendFormat": "scrape seconds/s",
+          "refId": "A"
+        }
+      ],
+      "title": "Scrape cost",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 95
+      },
+      "id": 32,
+      "options": {
+        "content": "Windows event logs are **out of scope**: `windows_exporter` does not expose the event log API and no Windows-side log shipper is deployed. WSL and pod logs are in the WSL host and cluster dashboards.",
+        "mode": "markdown"
+      },
+      "targets": [],
+      "title": "Windows event logs",
+      "transforms": [],
+      "type": "text"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": [
+    "obs-stack",
+    "host",
+    "windows"
+  ],
+  "templating": {
+    "list": [
+      {
+        "hide": 0,
+        "label": "Prometheus",
+        "name": "DS_PROMETHEUS",
+        "query": "prometheus",
+        "type": "datasource"
+      },
+      {
+        "hide": 0,
+        "label": "Loki",
+        "name": "DS_LOKI",
+        "query": "loki",
+        "type": "datasource"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-3h",
+    "to": "now"
+  },
+  "title": "Windows host",
+  "uid": "obs-windows-host"
+}

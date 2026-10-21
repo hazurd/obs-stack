@@ -1,0 +1,35 @@
+# Values for grafana/promtail 6.17.1 (release name "obs-promtail").
+#
+# This is the in-cluster log shipper: a DaemonSet on every kind node that tails
+# /var/log/pods and pushes to Loki. Logs of the WSL distro itself are shipped by
+# a separate promtail running on WSL (exporters/wsl/promtail-host.yaml), because
+# the DaemonSet cannot see the distro's journald.
+#
+# The gateway is disabled in monitoring/values/loki.yaml, so clients point
+# straight at the Loki single binary (the chart default is http://loki-gateway).
+
+config:
+  enabled: true
+  clients:
+    - url: http://obs-loki:3100/loki/api/v1/push
+
+# The chart puts resources at the top level, not under `daemonset`; a nested
+# copy is silently ignored and leaves the pod without limits.
+resources:
+  requests:
+    cpu: 25m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
+
+# Off by default in the chart. Without it kube-prometheus-stack never scrapes
+# promtail, so the "Promtail up" panel on the cluster dashboard would be empty.
+serviceMonitor:
+  enabled: true
+
+# Ship container logs from every namespace, including kube-system (kind's
+# control-plane components run as processes, not pods, so only the CRI-managed
+# pods appear here: coredns, CSI, and everything in monitoring).
+configmap:
+  enabled: true

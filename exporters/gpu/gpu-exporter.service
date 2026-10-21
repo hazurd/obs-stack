@@ -1,0 +1,14 @@
+[Unit]
+Description=obs-stack gpu_exporter (nvidia-smi metrics for the Windows GPU seen from WSL)
+After=network.target
+
+[Service]
+Type=simple
+Environment=NVIDIA_SMI=@NVIDIA_SMI@
+Environment=GPU_EXPORTER_PORT=@GPU_EXPORTER_PORT@
+ExecStart=@PYTHON@ @OBS_ROOT@/exporters/gpu/gpu_exporter.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

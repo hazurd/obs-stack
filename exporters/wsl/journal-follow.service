@@ -1,0 +1,14 @@
+[Unit]
+Description=obs-stack journald follower (WSL distro logs into a promtail-readable file)
+After=network.target
+
+[Service]
+Type=simple
+Environment=OBS_STATE=@OBS_STATE@
+Environment=JOURNAL_SINCE=@JOURNAL_SINCE@
+ExecStart=@PYTHON@ @OBS_ROOT@/exporters/wsl/journal-follow.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

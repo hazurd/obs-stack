@@ -1,0 +1,1975 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "graphTooltip": 1,
+  "id": null,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "panels": [],
+      "title": "Health",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 1
+      },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "up{job=\"wsl-host\"}",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "node_exporter up",
+      "transforms": [],
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "showThresholdLabels": false,
+            "thresholdsMode": "absolute"
+          },
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 4,
+        "y": 1
+      },
+      "id": 2,
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "100 * (1 - rate(node_cpu_seconds_total{mode=\"idle\",job=\"wsl-host\"}[5m]) / rate(node_cpu_seconds_total{job=\"wsl-host\"}[5m]))",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "CPU utilisation",
+      "transforms": [],
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "showThresholdLabels": false,
+            "thresholdsMode": "absolute"
+          },
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 9,
+        "y": 1
+      },
+      "id": 3,
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "100 * (1 - node_memory_MemAvailable_bytes{job=\"wsl-host\"} / node_memory_MemTotal_bytes{job=\"wsl-host\"})",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Memory in use",
+      "transforms": [],
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1000000000.0
+              },
+              {
+                "color": "red",
+                "value": 4000000000.0
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 14,
+        "y": 1
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "node_memory_SwapTotal_bytes{job=\"wsl-host\"} - node_memory_SwapFree_bytes{job=\"wsl-host\"}",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Swap in use",
+      "transforms": [],
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 5
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 19,
+        "y": 1
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "count(node_systemd_unit_state{state=\"failed\",job=\"wsl-host\"})",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Failed systemd units",
+      "transforms": [],
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "panels": [],
+      "title": "CPU",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 6
+      },
+      "id": 6,
+      "options": {},
+      "targets": [
+        {
+          "expr": "rate(node_cpu_seconds_total{job=\"wsl-host\"}[5m])",
+          "legendFormat": "{{mode}}",
+          "refId": "A"
+        }
+      ],
+      "title": "CPU time by mode",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 6
+      },
+      "id": 7,
+      "options": {},
+      "targets": [
+        {
+          "expr": "100 * (1 - rate(node_cpu_seconds_total{mode=\"idle\",job=\"wsl-host\"}[5m]) / rate(node_cpu_seconds_total{job=\"wsl-host\"}[5m]))",
+          "legendFormat": "{{cpu}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Busy per core",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 14
+      },
+      "id": 8,
+      "options": {},
+      "targets": [
+        {
+          "expr": "node_load1{job=\"wsl-host\"}",
+          "legendFormat": "1m",
+          "refId": "A"
+        },
+        {
+          "expr": "node_load5{job=\"wsl-host\"}",
+          "legendFormat": "5m",
+          "refId": "A"
+        },
+        {
+          "expr": "node_load15{job=\"wsl-host\"}",
+          "legendFormat": "15m",
+          "refId": "A"
+        }
+      ],
+      "title": "Load average",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 14
+      },
+      "id": 9,
+      "options": {},
+      "targets": [
+        {
+          "expr": "rate(node_context_switches_total{job=\"wsl-host\"}[5m])",
+          "legendFormat": "context switches/s",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(node_intr_total{job=\"wsl-host\"}[5m])",
+          "legendFormat": "interrupts/s",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(node_forks_total{job=\"wsl-host\"}[5m])",
+          "legendFormat": "forks/s",
+          "refId": "A"
+        }
+      ],
+      "title": "Scheduler activity",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      },
+      "panels": [],
+      "title": "Memory",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "showThresholdLabels": false,
+            "thresholdsMode": "absolute"
+          },
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 23
+      },
+      "id": 10,
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "node_memory_MemTotal_bytes{job=\"wsl-host\"}",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Total RAM",
+      "transforms": [],
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "showThresholdLabels": false,
+            "thresholdsMode": "absolute"
+          },
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 23
+      },
+      "id": 11,
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "node_memory_MemAvailable_bytes{job=\"wsl-host\"}",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Available",
+      "transforms": [],
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "showThresholdLabels": false,
+            "thresholdsMode": "absolute"
+          },
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 23
+      },
+      "id": 12,
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "node_memory_Committed_AS_bytes{job=\"wsl-host\"}",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Committed (AS)",
+      "transforms": [],
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "showThresholdLabels": false,
+            "thresholdsMode": "absolute"
+          },
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 23
+      },
+      "id": 13,
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "node_memory_Slab_bytes{job=\"wsl-host\"} + node_memory_KernelStack_bytes{job=\"wsl-host\"}",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Slab + kernel",
+      "transforms": [],
+      "type": "gauge"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 27
+      },
+      "id": 14,
+      "options": {},
+      "targets": [
+        {
+          "expr": "node_memory_Cached_bytes{job=\"wsl-host\"}",
+          "legendFormat": "page cache",
+          "refId": "A"
+        },
+        {
+          "expr": "node_memory_Buffers_bytes{job=\"wsl-host\"}",
+          "legendFormat": "buffers",
+          "refId": "A"
+        },
+        {
+          "expr": "node_memory_SReclaimable_bytes{job=\"wsl-host\"}",
+          "legendFormat": "slab reclaimable",
+          "refId": "A"
+        }
+      ],
+      "title": "Cache and reclaimable",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 27
+      },
+      "id": 15,
+      "options": {},
+      "targets": [
+        {
+          "expr": "node_memory_Dirty_bytes{job=\"wsl-host\"}",
+          "legendFormat": "dirty",
+          "refId": "A"
+        },
+        {
+          "expr": "node_memory_Writeback_bytes{job=\"wsl-host\"}",
+          "legendFormat": "writeback",
+          "refId": "A"
+        }
+      ],
+      "title": "Dirty and writeback",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 35
+      },
+      "panels": [],
+      "title": "Filesystem",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 15
+              },
+              {
+                "color": "green",
+                "value": 40
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 36
+      },
+      "id": 16,
+      "options": {},
+      "targets": [
+        {
+          "expr": "100 * node_filesystem_avail_bytes{job=\"wsl-host\",fstype!=\"tmpfs\"} / node_filesystem_size_bytes{job=\"wsl-host\",fstype!=\"tmpfs\"}",
+          "legendFormat": "{{mountpoint}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Free space",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 36
+      },
+      "id": 17,
+      "options": {},
+      "targets": [
+        {
+          "expr": "100 * (1 - node_filesystem_files_free{job=\"wsl-host\",fstype!=\"tmpfs\"} / node_filesystem_files{job=\"wsl-host\",fstype!=\"tmpfs\"})",
+          "legendFormat": "{{mountpoint}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Inodes used",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 44
+      },
+      "id": 18,
+      "options": {
+        "showLegend": false
+      },
+      "targets": [
+        {
+          "expr": "node_filesystem_avail_bytes{job=\"wsl-host\",fstype!=\"tmpfs\"}",
+          "format": "table",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Mounts",
+      "transforms": [],
+      "type": "table"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 52
+      },
+      "panels": [],
+      "title": "Disk IO",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 53
+      },
+      "id": 19,
+      "options": {},
+      "targets": [
+        {
+          "expr": "100 * rate(node_disk_io_time_seconds_total{job=\"wsl-host\"}[5m])",
+          "legendFormat": "{{device}}",
+          "refId": "A"
+        },
+        {
+          "expr": "100 * rate(node_disk_io_time_weighted_seconds_total{job=\"wsl-host\"}[5m])",
+          "legendFormat": "{{device}} queue avg",
+          "refId": "A"
+        }
+      ],
+      "title": "Busy per device",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "Bps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 53
+      },
+      "id": 20,
+      "options": {},
+      "targets": [
+        {
+          "expr": "rate(node_disk_read_bytes_total{job=\"wsl-host\"}[5m])",
+          "legendFormat": "{{device}} read",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(node_disk_written_bytes_total{job=\"wsl-host\"}[5m])",
+          "legendFormat": "{{device}} write",
+          "refId": "A"
+        }
+      ],
+      "title": "Throughput",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 61
+      },
+      "id": 21,
+      "options": {},
+      "targets": [
+        {
+          "expr": "rate(node_disk_reads_completed_total{job=\"wsl-host\"}[5m])",
+          "legendFormat": "{{device}} reads",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(node_disk_writes_completed_total{job=\"wsl-host\"}[5m])",
+          "legendFormat": "{{device}} writes",
+          "refId": "A"
+        }
+      ],
+      "title": "Operations",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 69
+      },
+      "panels": [],
+      "title": "Network",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "Bps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 70
+      },
+      "id": 22,
+      "options": {},
+      "targets": [
+        {
+          "expr": "rate(node_network_receive_bytes_total{job=\"wsl-host\",device!~\"lo\"}[5m])",
+          "legendFormat": "{{device}} rx",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(node_network_transmit_bytes_total{job=\"wsl-host\",device!~\"lo\"}[5m])",
+          "legendFormat": "{{device}} tx",
+          "refId": "A"
+        }
+      ],
+      "title": "Throughput",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 70
+      },
+      "id": 23,
+      "options": {},
+      "targets": [
+        {
+          "expr": "rate(node_network_receive_drop_total{job=\"wsl-host\",device!~\"lo\"}[5m])",
+          "legendFormat": "{{device}} rx drops",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(node_network_transmit_drop_total{job=\"wsl-host\",device!~\"lo\"}[5m])",
+          "legendFormat": "{{device}} tx drops",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(node_network_receive_errs_total{job=\"wsl-host\",device!~\"lo\"}[5m])",
+          "legendFormat": "{{device}} rx errs",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(node_softnet_dropped_total{job=\"wsl-host\"}[5m])",
+          "legendFormat": "softnet dropped",
+          "refId": "A"
+        }
+      ],
+      "title": "Drops and errors",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 78
+      },
+      "id": 24,
+      "options": {},
+      "targets": [
+        {
+          "expr": "node_tcp_connection_states{job=\"wsl-host\"}",
+          "legendFormat": "{{state}}",
+          "refId": "A"
+        },
+        {
+          "expr": "node_netstat_Tcp_CurrEstab{job=\"wsl-host\"}",
+          "legendFormat": "established (netstat)",
+          "refId": "A"
+        }
+      ],
+      "title": "TCP connections",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 78
+      },
+      "id": 25,
+      "options": {},
+      "targets": [
+        {
+          "expr": "rate(node_netstat_Tcp_RetransSegs{job=\"wsl-host\"}[5m])",
+          "legendFormat": "retransmits/s",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(node_netstat_TcpExt_TCPSynRetrans{job=\"wsl-host\"}[5m])",
+          "legendFormat": "syn retransmits/s",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(node_netstat_TcpExt_ListenOverflows{job=\"wsl-host\"}[5m])",
+          "legendFormat": "listen overflows/s",
+          "refId": "A"
+        }
+      ],
+      "title": "TCP health",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 86
+      },
+      "panels": [],
+      "title": "System",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 87
+      },
+      "id": 26,
+      "options": {},
+      "targets": [
+        {
+          "expr": "node_filefd_allocated{job=\"wsl-host\"}",
+          "legendFormat": "allocated",
+          "refId": "A"
+        },
+        {
+          "expr": "node_filefd_maximum{job=\"wsl-host\"}",
+          "legendFormat": "maximum",
+          "refId": "A"
+        }
+      ],
+      "title": "File descriptors",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 87
+      },
+      "id": 27,
+      "options": {},
+      "targets": [
+        {
+          "expr": "node_entropy_available_bits{job=\"wsl-host\"}",
+          "legendFormat": "entropy bits",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(node_softnet_times_squeezed_total{job=\"wsl-host\"}[5m])",
+          "legendFormat": "squeezed/s",
+          "refId": "A"
+        }
+      ],
+      "title": "Entropy and softnet",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 95
+      },
+      "id": 28,
+      "options": {
+        "showLegend": false
+      },
+      "targets": [
+        {
+          "expr": "node_systemd_unit_state{state=\"failed\",job=\"wsl-host\"} == 1",
+          "format": "table",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Failed units",
+      "transforms": [],
+      "type": "table"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 95
+      },
+      "id": 29,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "time() - node_boot_time_seconds{job=\"wsl-host\"}",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Uptime",
+      "transforms": [],
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 100
+      },
+      "panels": [],
+      "title": "Log shipping (promtail on WSL)",
+      "type": "row"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 0,
+        "y": 101
+      },
+      "id": 30,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      },
+      "targets": [
+        {
+          "expr": "up{job=\"wsl-promtail\"}",
+          "instant": true,
+          "refId": "A"
+        }
+      ],
+      "title": "promtail up",
+      "transforms": [],
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 10,
+        "x": 4,
+        "y": 101
+      },
+      "id": 31,
+      "options": {},
+      "targets": [
+        {
+          "expr": "rate(promtail_sent_entries_total{job=\"wsl-promtail\"}[5m])",
+          "legendFormat": "entries/s",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(promtail_sent_bytes_total{job=\"wsl-promtail\"}[5m])",
+          "legendFormat": "bytes/s",
+          "refId": "A"
+        }
+      ],
+      "title": "Entries sent",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "fillOpacity": 15,
+            "lineWidth": 1,
+            "showLegend": true
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 10,
+        "x": 14,
+        "y": 101
+      },
+      "id": 32,
+      "options": {},
+      "targets": [
+        {
+          "expr": "promtail_targets_active_total{job=\"wsl-promtail\"}",
+          "legendFormat": "active targets",
+          "refId": "A"
+        },
+        {
+          "expr": "promtail_files_active_total{job=\"wsl-promtail\"}",
+          "legendFormat": "open files",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(promtail_config_reload_fail_total{job=\"wsl-promtail\"}[5m])",
+          "legendFormat": "reload failures/s",
+          "refId": "A"
+        }
+      ],
+      "title": "Targets and failures",
+      "transforms": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "name": "${DS_LOKI}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 109
+      },
+      "id": 33,
+      "options": {
+        "showTimeRange": false
+      },
+      "targets": [
+        {
+          "expr": "{job=\"wsl-journald\"} |= \"error\"",
+          "refId": "A"
+        }
+      ],
+      "title": "journald errors",
+      "transforms": [],
+      "type": "logs"
+    },
+    {
+      "datasource": {
+        "name": "${DS_LOKI}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 117
+      },
+      "id": 34,
+      "options": {
+        "showTimeRange": false
+      },
+      "targets": [
+        {
+          "expr": "{job=\"wsl-files\"} |= \"error\"",
+          "refId": "A"
+        }
+      ],
+      "title": "distro log files",
+      "transforms": [],
+      "type": "logs"
+    },
+    {
+      "datasource": {
+        "name": "${DS_PROMETHEUS}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 125
+      },
+      "id": 35,
+      "options": {
+        "content": "journald is shipped by the `obs-journal-follow` unit (journald cannot be tailed directly), so its records reach Loki as JSON lines tagged `job=\"wsl-journald\"`. Windows event logs are out of scope.",
+        "mode": "markdown"
+      },
+      "targets": [],
+      "title": "Note",
+      "transforms": [],
+      "type": "text"
+    }
+  ],
+  "refresh": "30s",
+  "schemaVersion": 39,
+  "tags": [
+    "obs-stack",
+    "host",
+    "wsl"
+  ],
+  "templating": {
+    "list": [
+      {
+        "hide": 0,
+        "label": "Prometheus",
+        "name": "DS_PROMETHEUS",
+        "query": "prometheus",
+        "type": "datasource"
+      },
+      {
+        "hide": 0,
+        "label": "Loki",
+        "name": "DS_LOKI",
+        "query": "loki",
+        "type": "datasource"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-3h",
+    "to": "now"
+  },
+  "title": "WSL distro",
+  "uid": "obs-wsl-host"
+}

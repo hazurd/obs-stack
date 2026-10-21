@@ -1,0 +1,74 @@
+# Template for the WSL-side log shipper. scripts/exporters.sh renders this into
+# $OBS_STATE/promtail-host.yaml, substituting the Loki endpoint discovered by
+# scripts/host-targets.sh. Do not apply this file directly.
+#
+# Two things that look wrong but are deliberate:
+#   * file targets are selected with the `__path__` label, not a `path:` key;
+#     promtail 3.5.1 rejects `path` in static_configs.
+#   * the timestamp format is a Go reference layout. This build of promtail does
+#     not implement the named formats ("unix", "unixms", "rfc3339ns" all fail to
+#     parse), and journal-follow.py emits UTC RFC3339Nano strings.
+server:
+  http_listen_port: @PROMTAIL_HOST_PORT@
+  grpc_listen_port: 0
+
+positions:
+  filename: @OBS_STATE@/promtail-host-positions.yaml
+
+clients:
+  - url: @LOKI_URL@
+    batchwait: 1s
+    batchsize: 1048576
+
+scrape_configs:
+  # journald (the distro's real service log) arrives via journal-follow.py as
+  # one compact JSON object per line.
+  - job_name: wsl-journald
+    pipeline_stages:
+      - json:
+          expressions:
+            ts: ts
+            msg: msg
+            unit: unit
+            service: service
+            priority: priority
+            host: host
+      - timestamp:
+          source: ts
+          format: "2006-01-02T15:04:05.999999999Z07:00"
+      - labels:
+          unit:
+          service:
+          priority:
+          host:
+      - output:
+          source: msg
+    static_configs:
+      - targets:
+          - wsl
+        labels:
+          job: wsl-journald
+          __path__: @OBS_STATE@/journald.log
+
+  # Plain files the distro does write (auth/dpkg/apt logs; there is no syslog
+  # daemon under WSL2, so glob rather than a fixed list).
+  - job_name: wsl-files
+    static_configs:
+      - targets:
+          - wsl
+        labels:
+          job: wsl-files
+          host: wsl
+          __path__: /var/log/*.log
+      - targets:
+          - wsl
+        labels:
+          job: wsl-files
+          host: wsl
+          __path__: /var/log/apt/*log
+      - targets:
+          - wsl
+        labels:
+          job: wsl-files
+          host: wsl
+          __path__: /var/log/dmesg
