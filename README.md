@@ -129,6 +129,20 @@ shipped to Grafana by the kube-prometheus-stack sidecar (ConfigMaps labelled
 The datasource variables are `${DS_PROMETHEUS}` and `${DS_LOKI}`, so the dashboards
 work with whatever datasource the sidecar names `prometheus` / `loki`.
 
+They appear under **Dashboards -> Browse**, not on the Home page: Home only lists
+dashboards you have starred or recently opened, so a fresh login looks empty.
+Opening one directly needs no searching:
+
+```
+http://localhost:3000/d/obs-windows-host
+http://localhost:3000/d/obs-wsl-host
+http://localhost:3000/d/obs-gpu
+http://localhost:3000/d/obs-cluster
+```
+
+`./scripts/login.sh` prints these links too. Star a dashboard in the UI if you want
+it listed on Home.
+
 ## Alerts
 
 `monitoring/rules/host-alerts.yaml` (groups `obs-host-up`, `obs-windows-host`,
@@ -188,5 +202,6 @@ config. Loki retention is 7 days (`monitoring/values/loki.yaml`).
 | host jobs missing from Prometheus targets | `./scripts/host-targets.sh` (its log is `.state/host-targets.log`) |
 | Windows metrics missing | elevated firewall rule for `:9182`, then `./scripts/exporters.sh windows` |
 | no GPU metrics | `NVIDIA_SMI=/usr/lib/wsl/lib/nvidia-smi ./scripts/exporters.sh` and `journalctl -u obs-gpu-exporter` |
-| Grafana login fails | `./scripts/login.sh` prints what Grafana's secret holds; set a new one with `GRAFANA_ADMIN_PASSWORD=<new> ./scripts/deploy.sh` |
+| Grafana login fails | `./scripts/login.sh` prints what Grafana's secret holds and probes it. Grafana stores the password in its database, so a password changed in the web UI is not recorded here: re-record it with `GRAFANA_ADMIN_PASSWORD='<that password>' ./scripts/deploy.sh`, or make Grafana accept the recorded value again with `kubectl -n monitoring exec deploy/obs-grafana -c grafana -- grafana cli admin reset-admin-password '<new>'` |
+| Grafana Home shows nothing | the dashboards live under Dashboards -> Browse, or open `http://localhost:3000/d/obs-windows-host` directly |
 | WSL restarted, everything broke | `./scripts/host-targets.sh && ./scripts/verify.sh` |

@@ -108,13 +108,30 @@ fi
 # --- dashboards, rules, logs -----------------------------------------------
 # Checked by uid rather than by search text, so the check is exact: the chart's
 # own dashboards have unrelated titles and would skew a text search.
+# The API needs the admin password, and grafana keeps that password in its own
+# database: a password changed in the web UI makes the recorded value stale, so
+# the check falls back to the dashboard sidecar's log rather than failing.
+auth=$(curl -s -o /dev/null -w '%{http_code}' --max-time 8 \
+  -u "$GRAFANA_ADMIN_USER:$GRAFANA_ADMIN_PASSWORD" \
+  "http://localhost:$GRAFANA_HOST_PORT/api/dashboards/uid/obs-cluster" 2> /dev/null || echo 000)
+
 dash=0
-for uid in obs-windows-host obs-wsl-host obs-gpu obs-cluster; do
-  curl -fsS --max-time 8 -u "$GRAFANA_ADMIN_USER:$GRAFANA_ADMIN_PASSWORD" \
-    "http://localhost:$GRAFANA_HOST_PORT/api/dashboards/uid/$uid" > /dev/null 2>&1 \
-    && dash=$((dash + 1)) || warn "grafana dashboard '$uid' not provisioned (sidecar logs: kubectl -n $MON_NS logs deploy/obs-grafana -c grafana-sc-dashboard)"
-done
-[ "$dash" -ge 4 ] && ok "grafana dashboards present: $dash/4" || bad "only $dash/4 obs dashboards in grafana (scripts/deploy.sh)"
+if [ "$auth" = 200 ]; then
+  for uid in obs-windows-host obs-wsl-host obs-gpu obs-cluster; do
+    curl -fsS --max-time 8 -u "$GRAFANA_ADMIN_USER:$GRAFANA_ADMIN_PASSWORD" \
+      "http://localhost:$GRAFANA_HOST_PORT/api/dashboards/uid/$uid" > /dev/null 2>&1 \
+      && dash=$((dash + 1)) || warn "grafana dashboard '$uid' not provisioned (sidecar logs: kubectl -n $MON_NS logs deploy/obs-grafana -c grafana-sc-dashboard)"
+  done
+  [ "$dash" -ge 4 ] && ok "grafana dashboards present: $dash/4" || bad "only $dash/4 obs dashboards in grafana (scripts/deploy.sh)"
+else
+  written=$(kube logs deploy/obs-grafana -n "$MON_NS" -c grafana-sc-dashboard 2> /dev/null \
+            | grep -c "Writing /tmp/dashboards/obs-") || written=0
+  [ "$written" -ge 4 ] \
+    && ok "grafana dashboards provisioned: $written/4 (from the sidecar log)" \
+    || bad "only $written/4 obs dashboards written by the sidecar (scripts/deploy.sh)"
+  warn "grafana rejected the recorded admin password (http $auth) - it was changed in the web UI."
+  warn "record it with GRAFANA_ADMIN_PASSWORD='<that password>' ./scripts/deploy.sh, or reset grafana to the recorded one: kube exec deploy/obs-grafana -n $MON_NS -c grafana -- grafana cli admin reset-admin-password '<new>'"
+fi
 
 rules=$(curl -fsS --max-time 8 "http://localhost:$PROM_HOST_PORT/api/v1/rules" 2> /dev/null \
         | python3 -c 'import json,sys; d=json.load(sys.stdin); print(sum(1 for g in d.get("data",{}).get("groups",[]) if g["name"].startswith("obs-")))' 2> /dev/null || echo 0)
