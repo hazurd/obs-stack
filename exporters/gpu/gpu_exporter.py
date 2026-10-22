@@ -72,7 +72,10 @@ def smi(args):
     rows = []
     for line in out.stdout.splitlines():
         line = line.strip()
-        if not line or line.startswith("CUDA Error") or line.startswith("GPU"):
+        # With --query-compute-apps=gpu_uuid,... each row starts with a GPU
+        # UUID ("GPU-..."), so a startswith("GPU") filter would drop every
+        # process row. Human-readable chatter has no commas and is skipped.
+        if not line or line.startswith("CUDA Error") or "," not in line:
             continue
         rows.append([field.strip() for field in line.split(",")])
     return rows
@@ -89,6 +92,12 @@ def num(value):
 def render():
     global errors
     lines = []
+    # One HELP/TYPE pair per metric name, before any sample: Prometheus 3.x
+    # rejects repeated metadata and any type it does not know.
+    for metric, help_text in HELP.items():
+        lines.append(f"# HELP {metric} {help_text}")
+        lines.append(f"# TYPE {metric} {TYPE[metric]}")
+
     try:
         rows = smi(["--query-gpu=" + FIELDS, "--format=csv,noheader,nounits"])
         procs = {}
@@ -97,22 +106,18 @@ def render():
                 ["--query-compute-apps=gpu_uuid,pid,used_memory", "--format=csv,noheader,nounits"]
             ):
                 if len(row) >= 3:
-                    procs.setdefault(row[0], []).append(num(row[2]))
+                    # row[1] is the process id; row[2] is '[N/A]' for processes
+                    # whose memory nvidia-smi cannot read from WSL.
+                    procs.setdefault(row[0], []).append((row[1], num(row[2])))
         except Exception:  # compute-apps is optional detail
             pass
     except Exception:
         errors += 1
-        rows, procs = [], {}
-        lines.append("# HELP gpu_smi_query_errors_total " + HELP["gpu_smi_query_errors_total"])
-        lines.append("# TYPE gpu_smi_query_errors_total counter")
         lines.append(f"gpu_smi_query_errors_total {errors}")
+        lines.append("gpu_exporter_up 0")
         return "\n".join(lines) + "\n"
 
-    # One HELP/TYPE pair per metric name, before any sample: Prometheus 3.x
-    # rejects repeated metadata and any type it does not know.
-    for metric, help_text in HELP.items():
-        lines.append(f"# HELP {metric} {help_text}")
-        lines.append(f"# TYPE {metric} {TYPE[metric]}")
+    lines.append(f"gpu_smi_query_errors_total {errors}")
 
     for row in rows:
         if len(row) < len(FIELDS.split(",")):
@@ -140,7 +145,7 @@ def render():
 
         count = len(procs.get(uuid, []))
         lines.append(f"gpu_compute_processes{{{labels}}} {count}")
-        for pid, mem in enumerate(procs.get(uuid, [])):
+        for pid, mem in procs.get(uuid, []):
             if mem is not None:
                 lines.append(f'gpu_compute_process_memory_mib{{{labels}, pid="{pid}"}} {mem}')
 
