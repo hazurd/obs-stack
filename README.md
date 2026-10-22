@@ -74,9 +74,10 @@ Individual steps, in the order they need to run:
 | `exporters` | `scripts/exporters.sh` | renders + installs the WSL systemd units and starts the Windows exporter |
 | `deploy` | `scripts/deploy.sh` | installs kube-prometheus-stack, loki, promtail; patches NodePorts; loads dashboards and alert rules |
 | `targets` | `scripts/host-targets.sh` | probes how the cluster can reach the host exporters, renders the scrape configs, upgrades Prometheus |
-| `verify` | `scripts/verify.sh` | checks every layer: pods, listeners, scrape targets, dashboards, rules, Loki labels |
+| `verify` | `scripts/verify.sh` | checks every layer: pods, listeners, scrape targets, dashboards, every panel query, rules, Loki labels |
 | `login` | `scripts/login.sh` | prints the Grafana URL, user, password and where the password is stored |
 | `dashboards` | `scripts/gen-dashboards.py` | regenerates `monitoring/dashboards/*.json` |
+| `panels` | `scripts/check-dashboards.py` | replays every panel query against Prometheus and Loki and reports the empty ones |
 | `teardown` | `scripts/teardown.sh` | uninstalls everything, deletes the cluster, removes the units |
 
 ## Windows firewall
@@ -128,6 +129,16 @@ shipped to Grafana by the kube-prometheus-stack sidecar (ConfigMaps labelled
 
 The datasource variables are `${DS_PROMETHEUS}` and `${DS_LOKI}`, so the dashboards
 work with whatever datasource the sidecar names `prometheus` / `loki`.
+
+A dashboard can be provisioned and still be useless, so `make panels` reads the
+dashboard JSON out of Grafana and replays every target against `http://localhost:9090`
+and `http://localhost:31000`. Panels that are empty because of a fact about the system
+are allowlisted in `EXPECTED_EMPTY` inside `scripts/check-dashboards.py` with their
+reason: the failed-units and not-ready-containers tables (empty means healthy), the
+per-process GPU memory panel (`nvidia-smi` reports `used_memory [N/A]` for
+Windows-side processes under WSL), and the log panels that filter for the text
+`error` (empty means nothing matched). Anything else that returns "No data" is a
+wiring break and fails the check, which is why `verify.sh` runs it too.
 
 They appear under **Dashboards -> Browse**, not on the Home page: Home only lists
 dashboards you have starred or recently opened, so a fresh login looks empty.
@@ -204,4 +215,5 @@ config. Loki retention is 7 days (`monitoring/values/loki.yaml`).
 | no GPU metrics | `NVIDIA_SMI=/usr/lib/wsl/lib/nvidia-smi ./scripts/exporters.sh` and `journalctl -u obs-gpu-exporter` |
 | Grafana login fails | `./scripts/login.sh` prints what Grafana's secret holds and probes it. Grafana stores the password in its database, so a password changed in the web UI is not recorded here: re-record it with `GRAFANA_ADMIN_PASSWORD='<that password>' ./scripts/deploy.sh`, or make Grafana accept the recorded value again with `kubectl -n monitoring exec deploy/obs-grafana -c grafana -- grafana cli admin reset-admin-password '<new>'` |
 | Grafana Home shows nothing | the dashboards live under Dashboards -> Browse, or open `http://localhost:3000/d/obs-windows-host` directly |
+| a dashboard panel shows "No data" | `make panels` replays every panel query and names the failing one; the empties listed as `warn:` are expected, see the reason in `scripts/check-dashboards.py` |
 | WSL restarted, everything broke | `./scripts/host-targets.sh && ./scripts/verify.sh` |

@@ -123,6 +123,24 @@ if [ "$auth" = 200 ]; then
       && dash=$((dash + 1)) || warn "grafana dashboard '$uid' not provisioned (sidecar logs: kubectl -n $MON_NS logs deploy/obs-grafana -c grafana-sc-dashboard)"
   done
   [ "$dash" -ge 4 ] && ok "grafana dashboards present: $dash/4" || bad "only $dash/4 obs dashboards in grafana (scripts/deploy.sh)"
+
+  # A dashboard can be provisioned and still show "No data" everywhere: the
+  # query is wrong or the metric does not exist in the exporter serving it.
+  # Every panel target is replayed against Prometheus and Loki; panels that are
+  # legitimately empty are allowlisted inside the script with their reason.
+  panel_out="$OBS_STATE/verify-panels.txt"
+  if GRAFANA_URL="http://localhost:$GRAFANA_HOST_PORT" \
+     PROM_URL="http://localhost:$PROM_HOST_PORT" \
+     LOKI_URL="http://localhost:$LOKI_HOST_PORT" \
+     python3 "$(dirname "$0")/check-dashboards.py" > "$panel_out" 2>&1; then
+    ok "$(tail -n 1 "$panel_out")"
+    warns="$(grep '^warn:' "$panel_out" || true)"
+    [ -n "$warns" ] && printf '%s\n' "$warns" || true
+  else
+    bad "$(tail -n 1 "$panel_out")"
+    grep '^fail:' "$panel_out" || true
+    FAIL=$((FAIL + 1))
+  fi
 else
   written=$(kube logs deploy/obs-grafana -n "$MON_NS" -c grafana-sc-dashboard 2> /dev/null \
             | grep -c "Writing /tmp/dashboards/obs-") || written=0

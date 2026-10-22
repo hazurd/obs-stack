@@ -6,3 +6,5 @@
 # Local scratch / samples.
 metrics.txt
 *.log
+__pycache__/
+*.pyc

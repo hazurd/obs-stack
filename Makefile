@@ -1,7 +1,7 @@
 SHELL := /usr/bin/env bash
 # Every target runs the matching script in this repo; nothing is installed
 # globally except the WSL systemd units scripts/exporters.sh writes.
-.PHONY: bootstrap cluster exporters deploy targets verify login dashboards up down teardown
+.PHONY: bootstrap cluster exporters deploy targets verify login dashboards panels up down teardown
 
 bootstrap:   ## download pinned binaries and add the helm repos
 	./scripts/bootstrap.sh
@@ -26,6 +26,9 @@ login:       ## print the grafana login and the unauthenticated endpoints
 
 dashboards:  ## regenerate monitoring/dashboards/*.json
 	python3 scripts/gen-dashboards.py
+
+panels:      ## replay every dashboard panel query against prometheus and loki
+	python3 scripts/check-dashboards.py
 
 up:          ## the whole stack, in order
 	./scripts/bootstrap.sh
