@@ -8,7 +8,7 @@ ConfigMaps labelled grafana_dashboard: "1".
 
 Datasource variables:
   ${DS_PROMETHEUS} -> the "prometheus" datasource created by kube-prometheus-stack
-  ${DS_LOKI}       -> the "loki" datasource created by grafana.extraDatasources
+  ${DS_LOKI}       -> the "loki" datasource created by grafana.additionalDataSources
 """
 
 import json
@@ -254,7 +254,9 @@ WINDOWS = dashboard("obs-windows-host", "Windows host", ["obs-stack", "host", "w
     stat(30, "Collectors total", f"count(windows_exporter_collector_success{{{W}}})", 6, 87, base="green"),
     timeseries(31, "Scrape cost", [
         target(f"rate(promhttp_metric_handler_requests_total{{{W}}}[5m])", legend="{{code}} req/s"),
-        target(f"rate(windows_exporter_scrape_duration_seconds_sum{{{W}}}[5m])", legend="scrape seconds/s"),
+        # windows_exporter exposes this as a plain gauge of the most recent
+        # scrape, not a _sum/_count histogram, so rate() over _sum has no data.
+        target(f"windows_exporter_scrape_duration_seconds{{{W}}}", legend="last scrape seconds"),
     ], 12, 87, unit="short"),
     text(32, "Windows event logs",
          "Windows event logs are **out of scope**: `windows_exporter` does not expose the event log "
@@ -279,7 +281,9 @@ WSL = dashboard("obs-wsl-host", "WSL distro", ["obs-stack", "host", "wsl"], [
          'node_memory_SwapTotal_bytes{job="wsl-host"} - node_memory_SwapFree_bytes{job="wsl-host"}',
          14, 1, unit="bytes", base="green", steps=[("orange", 1e9), ("red", 4e9)]),
     stat(5, "Failed systemd units",
-         'count(node_systemd_unit_state{state="failed",job="wsl-host"})',
+         # Empty means "nothing failed", which Grafana renders as No data;
+         # vector(0) keeps the panel showing a healthy 0.
+         'count(node_systemd_unit_state{state="failed",job="wsl-host"}) or vector(0)',
          19, 1, base="green", steps=[("orange", 1), ("red", 5)]),
 
     row("CPU", 5),
@@ -429,7 +433,9 @@ GPU = dashboard("obs-gpu", "GPU (RTX via nvidia-smi)", ["obs-stack", "host", "gp
     gauge(9, "VRAM free", f'gpu_memory_free_bytes{{{G}}}', 12, 6, w=6,
           unit="bytes", max_=None, steps=[]),
     gauge(10, "Held by processes",
-          f'1048576 * sum(gpu_compute_process_memory_mib{{{G}}})', 18, 6, w=6,
+          # No compute process (or memory nvidia-smi cannot read from WSL) means
+          # an empty result, which renders as No data; vector(0) shows 0 instead.
+          f'1048576 * sum(gpu_compute_process_memory_mib{{{G}}}) or vector(0)', 18, 6, w=6,
           unit="bytes", max_=None, steps=[]),
     timeseries(11, "VRAM used over time", [
         target(f'gpu_memory_used_bytes{{{G}}}', legend="{{gpu}}"),
@@ -467,7 +473,9 @@ GPU = dashboard("obs-gpu", "GPU (RTX via nvidia-smi)", ["obs-stack", "host", "gp
          f"GPU metrics come from `exporters/gpu/gpu_exporter.py` running on WSL against "
          f"`/usr/lib/wsl/lib/nvidia-smi`, so they describe the Windows GPU through WSL's "
          f"passthrough. `windows_exporter`'s own `gpu` collector reports nothing on WSL2 "
-         f"hosts, which is why this exporter exists.", 0, 44),
+         f"hosts, which is why this exporter exists. Per-process memory is only emitted when "
+         f"nvidia-smi can read it; under WSL it reports `[N/A]` for Windows-side processes, "
+         f"so 'Memory held per process' is normally empty while 'Compute processes' still counts them.", 0, 44),
 ])
 
 
@@ -565,7 +573,10 @@ CLUSTER = dashboard("obs-cluster", "Cluster overview", ["obs-stack", "cluster", 
     gauge(21, "etcd has leader", 'etcd_server_has_leader{job=~".*kube-etcd.*"}', 16, 56, w=4,
           max_=1, steps=[("green", 1)], legend="{{job}}"),
     timeseries(22, "etcd fsync", [
-        target('etcd_disk_wal_fsync_duration_seconds{job=~".*kube-etcd.*"}', legend="{{quantile}}"),
+        # etcd exposes the fsync metric only as a histogram, so the bare name
+        # has no series; derive a quantile from the bucket.
+        target('histogram_quantile(0.99, sum by (le) (rate(etcd_disk_wal_fsync_duration_seconds_bucket{job=~".*kube-etcd.*"}[5m])))',
+               legend="{{quantile}}"),
     ], 0, 64, w=8, unit="s"),
     timeseries(23, "Cluster jobs up", [
         target('up{job=~".*apiserver.*|.*kube-etcd.*|.*kubelet.*|.*kube-state-metrics.*|.*node-exporter.*|.*coredns.*"}',
@@ -598,11 +609,16 @@ CLUSTER = dashboard("obs-cluster", "Cluster overview", ["obs-stack", "cluster", 
     ], 0, 78, base="green", steps=[("orange", 1), ("red", 4)]),
     timeseries(32, "Prometheus health", [
         target('rate(prometheus_rule_evaluation_failures_total[5m])', legend="rule eval failures/s"),
-        target('rate(prometheus_scrape_series_added_total[5m])', legend="series added/s"),
+        # Per-target scrape bookkeeping is exposed as scrape_series_added;
+        # prometheus_scrape_series_added_total does not exist in Prometheus v3.
+        target('sum(rate(scrape_series_added[5m]))', legend="series added/s"),
         target('prometheus_tsdb_head_series', legend="head series"),
     ], 12, 78),
     logs(33, "Monitoring pod logs", '{job=~"monitoring/.*"} |= "error"', 0, 86),
-    logs(34, "Cluster pod logs", '{job!~"wsl-.*"} |= "error"', 0, 94),
+    # Loki rejects matchers that can match the empty string (a negated matcher
+    # alone is one), so select the pod-derived jobs by their namespace/name form
+    # instead of excluding the host streams.
+    logs(34, "Cluster pod logs", '{job=~"^.+/.+$"} |= "error"', 0, 94),
     text(35, "Note",
          "Pod logs are labelled `job=<namespace>/<app>` by the promtail DaemonSet. kind's "
          "control-plane components run as processes on the control-plane node, so their logs "

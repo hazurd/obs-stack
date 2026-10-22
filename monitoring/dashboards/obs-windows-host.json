@@ -1720,8 +1720,8 @@
           "refId": "A"
         },
         {
-          "expr": "rate(windows_exporter_scrape_duration_seconds_sum{job=\"windows-host\"}[5m])",
-          "legendFormat": "scrape seconds/s",
+          "expr": "windows_exporter_scrape_duration_seconds{job=\"windows-host\"}",
+          "legendFormat": "last scrape seconds",
           "refId": "A"
         }
       ],

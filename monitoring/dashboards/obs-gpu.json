@@ -579,7 +579,7 @@
       },
       "targets": [
         {
-          "expr": "1048576 * sum(gpu_compute_process_memory_mib{job=\"wsl-gpu\"})",
+          "expr": "1048576 * sum(gpu_compute_process_memory_mib{job=\"wsl-gpu\"}) or vector(0)",
           "instant": true,
           "refId": "A"
         }
@@ -1144,7 +1144,7 @@
       },
       "id": 21,
       "options": {
-        "content": "GPU metrics come from `exporters/gpu/gpu_exporter.py` running on WSL against `/usr/lib/wsl/lib/nvidia-smi`, so they describe the Windows GPU through WSL's passthrough. `windows_exporter`'s own `gpu` collector reports nothing on WSL2 hosts, which is why this exporter exists.",
+        "content": "GPU metrics come from `exporters/gpu/gpu_exporter.py` running on WSL against `/usr/lib/wsl/lib/nvidia-smi`, so they describe the Windows GPU through WSL's passthrough. `windows_exporter`'s own `gpu` collector reports nothing on WSL2 hosts, which is why this exporter exists. Per-process memory is only emitted when nvidia-smi can read it; under WSL it reports `[N/A]` for Windows-side processes, so 'Memory held per process' is normally empty while 'Compute processes' still counts them.",
         "mode": "markdown"
       },
       "targets": [],

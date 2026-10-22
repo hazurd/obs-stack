@@ -293,7 +293,7 @@
       },
       "targets": [
         {
-          "expr": "count(node_systemd_unit_state{state=\"failed\",job=\"wsl-host\"})",
+          "expr": "count(node_systemd_unit_state{state=\"failed\",job=\"wsl-host\"}) or vector(0)",
           "instant": true,
           "refId": "A"
         }

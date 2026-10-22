@@ -1170,7 +1170,7 @@
       "options": {},
       "targets": [
         {
-          "expr": "etcd_disk_wal_fsync_duration_seconds{job=~\".*kube-etcd.*\"}",
+          "expr": "histogram_quantile(0.99, sum by (le) (rate(etcd_disk_wal_fsync_duration_seconds_bucket{job=~\".*kube-etcd.*\"}[5m])))",
           "legendFormat": "{{quantile}}",
           "refId": "A"
         }
@@ -1730,7 +1730,7 @@
           "refId": "A"
         },
         {
-          "expr": "rate(prometheus_scrape_series_added_total[5m])",
+          "expr": "sum(rate(scrape_series_added[5m]))",
           "legendFormat": "series added/s",
           "refId": "A"
         },
@@ -1822,7 +1822,7 @@
       },
       "targets": [
         {
-          "expr": "{job!~\"wsl-.*\"} |= \"error\"",
+          "expr": "{job=~\"^.+/.+$\"} |= \"error\"",
           "refId": "A"
         }
       ],
