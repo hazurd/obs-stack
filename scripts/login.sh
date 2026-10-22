@@ -2,45 +2,60 @@
 # Prints the login details for the deployed stack: the URL to open in a Windows
 # browser, the Grafana user and password, where that password came from, and the
 # direct links to the dashboards.
-# The password is read from the live cluster secret when the cluster is up, so
-# the output matches what Grafana's secret holds. Grafana only applies that
-# secret to a fresh database, so a password changed in the web UI is not
-# reflected here; that case is probed below and reported.
+# Grafana keeps the admin password in its own database, so the cluster secret and
+# .state/secrets.env can both be stale if the password was changed in the web UI.
+# Every candidate is therefore probed against the API and the one that works is
+# reported.
 set -euo pipefail
 source "$(dirname "$0")/env.sh"
 
-password="$GRAFANA_ADMIN_PASSWORD"
-origin="${OBS_SECRETS#$OBS_ROOT/} (or the default in scripts/env.sh)"
+probe() {
+  curl -s -o /dev/null -w '%{http_code}' --max-time 8 \
+    -u "$GRAFANA_ADMIN_USER:$1" \
+    "http://localhost:$GRAFANA_HOST_PORT/api/dashboards/uid/obs-cluster" 2> /dev/null || echo 000
+}
 
+# Candidates, in the order they are tried: the value env.sh resolved (an explicit
+# GRAFANA_ADMIN_PASSWORD, then .state/secrets.env, then the default), then the
+# live cluster secret.
+passwords=("$GRAFANA_ADMIN_PASSWORD")
+origins=("${OBS_SECRETS#$OBS_ROOT/} (scripts/env.sh)")
 live="$(kube get secret obs-grafana -n "$MON_NS" -o jsonpath='{.data.admin-password}' 2> /dev/null | base64 -d)"
-if [ -n "$live" ]; then
-  password="$live"
-  origin="secret obs-grafana in namespace $MON_NS"
+if [ -n "$live" ] && [ "$live" != "$GRAFANA_ADMIN_PASSWORD" ]; then
+  passwords+=("$live")
+  origins+=("secret obs-grafana in namespace $MON_NS")
 fi
+
+password=""
+origin=""
+code="000"
+for i in "${!passwords[@]}"; do
+  code="$(probe "${passwords[$i]}")"
+  if [ "$code" = 200 ]; then
+    password="${passwords[$i]}"
+    origin="${origins[$i]}"
+    break
+  fi
+done
 
 echo "--- Grafana ---"
 printf 'url         http://localhost:%s\n' "$GRAFANA_HOST_PORT"
 printf 'user        %s\n' "$GRAFANA_ADMIN_USER"
-printf 'password    %s\n' "$password"
-printf 'stored in   %s\n' "$origin"
-printf 'change      GRAFANA_ADMIN_PASSWORD=<new> ./scripts/deploy.sh\n'
-
-# Does this password actually work? Grafana keeps the password in its database,
-# so if it was changed in the web UI the value above is stale.
-code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 8 \
-  -u "$GRAFANA_ADMIN_USER:$password" \
-  "http://localhost:$GRAFANA_HOST_PORT/api/dashboards/uid/obs-cluster" 2> /dev/null || echo 000)
-if [ "$code" = 200 ]; then
+if [ -n "$password" ]; then
+  printf 'password    %s\n' "$password"
+  printf 'stored in   %s\n' "$origin"
   printf 'auth        ok (the password above is accepted)\n'
-elif [ "$code" = 401 ]; then
-  printf 'auth        FAILED: grafana rejects this password, so it was changed in\n'
-  printf '            the web UI. Record the UI password with:\n'
-  printf '              GRAFANA_ADMIN_PASSWORD=%s ./scripts/deploy.sh\n' "'<the password you set in the UI>'"
-  printf '            or make grafana accept the recorded one again with:\n'
-  printf '              kube exec deploy/obs-grafana -n %s -c grafana -- grafana cli admin reset-admin-password %s\n' "$MON_NS" "'<new>'"
 else
-  printf 'auth        could not be checked (http %s)\n' "$code"
+  printf 'password    %s  (NOT accepted by grafana)\n' "${passwords[0]}"
+  printf 'tried       %s\n' "${origins[0]}"
+  printf '            %s\n' "${origins[1]:-no other candidate}"
+  printf 'grafana rejects both, so the password was changed in the web UI.\n'
+  printf 'Record the UI password with:\n'
+  printf '  GRAFANA_ADMIN_PASSWORD=%s ./scripts/deploy.sh\n' "'<the password you set in the UI>'"
+  printf 'or make grafana accept the recorded one again with:\n'
+  printf '  kube exec deploy/obs-grafana -n %s -c grafana -- grafana cli admin reset-admin-password %s\n' "$MON_NS" "'<new>'"
 fi
+printf 'change      GRAFANA_ADMIN_PASSWORD=<new> ./scripts/deploy.sh\n'
 
 echo
 echo "--- dashboards (open directly, or Dashboards -> Browse) ---"
