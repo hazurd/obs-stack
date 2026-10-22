@@ -32,9 +32,14 @@ grafana:
   # Loki datasource for the log panels. uid must match ${DS_LOKI} in the
   # dashboard JSON. The Loki release is named "obs-loki" (see
   # monitoring/values/loki.yaml).
-  extraDatasources:
-    loki:
-      name: Loki
+  #
+  # This is additionalDataSources, a list, not extraDatasources: the chart
+  # renders grafana.additionalDataSources into the datasource ConfigMap that the
+  # datasource sidecar syncs (templates/grafana/configmaps-datasources.yaml), and
+  # extraDatasources is not a key this chart reads at all - setting it silently
+  # provisions no datasource.
+  additionalDataSources:
+    - name: Loki
       type: loki
       uid: loki
       access: proxy
